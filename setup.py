@@ -23,7 +23,7 @@ class PyTest(TestCommand):
 print find_packages()
 setup(
     name='idempotent',
-    version='0.0.1',
+    version='0.0.2',
     description="Idempotence.club client",
     long_description='',
     url='https://idenmpotent.heroku.com',
@@ -41,7 +41,7 @@ setup(
     py_modules=['idempotence'],
     packages = find_packages(exclude=['tests']),
     zip_safe=True,
-    install_requires=['six', 'requests', 'python-gflags', 'pycrypto'],
+    install_requires=['six', 'requests', 'python-gflags', 'pycrypto', 'PyYAML'],
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage', 'pytest', 'pytest-cov', 'flake8'],

@@ -3,6 +3,8 @@ import os
 import sys
 
 import gflags
+import requests
+import yaml
 
 FLAGS = gflags.FLAGS
 
@@ -84,7 +86,7 @@ def credentials():
     for path in (os.path.expanduser('~/.idempotent.cfg'), '/etc/idempotent.cfg'):
         if os.path.exists(path):
             conf = yaml.load(open(path))
-            if set(conf.keys()) == ('email', 'key'):
+            if 'email' in conf and 'key' in conf:
                 return conf['email'], conf['key']
     return None, None
         
@@ -93,13 +95,13 @@ def ready(email, key, args):
         sys.stderr.write('Invalid credentials\n')
         return FLAGS.fail == 'safe'
     try:
-        response = requests.post('http://idempotent.heroku.com/lock', data = {
+        response = requests.post(FLAGS.api + 'lock', data = {
             'email': email, 'key': key, 'args': '\t'.join(args)})
         if response.status_code == 204:
             return True
         if response.status_code == 420:
             return False
-        sys.stderr.write('Recieved unexpected status code: %s\n')
+        sys.stderr.write('Recieved unexpected status code: %s\n' % response.status_code)
         return FLAGS.fail == 'safe'
     except requests.exceptions.RequestException as e:
         sys.stderr.write('Problem contacting server: %s\n')
