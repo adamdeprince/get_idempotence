@@ -41,7 +41,7 @@ setup(
     py_modules=['idempotence'],
     packages = find_packages(exclude=['tests']),
     zip_safe=True,
-    install_requires=['six', 'requests', 'python-gflags'],
+    install_requires=['six', 'requests', 'python-gflags', 'pycrypto'],
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage', 'pytest', 'pytest-cov', 'flake8'],

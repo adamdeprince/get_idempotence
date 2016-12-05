@@ -1,17 +1,18 @@
-import gflags
 import sys
+import gflags
+import requests
 
 FLAGS = gflags.FLAGS
 
 gflags.DEFINE_string(
     'register',
     None,
-    ('Register a new account for an email address'))
+    'Register a new account for an email address')
 
 gflags.DEFINE_string(
     'invalidate',
     None,
-    ('Invalidate and reissue a new API key'))
+    'Invalidate and reissue a new API key')
 
 gflags.register_validator(
     'register',
@@ -23,12 +24,28 @@ gflags.register_validator(
     lambda x:not x or (x and FLAGS.key),
     "You must provide a `--key` when invalidating a key")
 
+gflags.DEFINE_string(
+    'api',
+    'https://idempotence.herokuapp.com/',
+    'The root url to connect to.  Change this when testing')
+
 def register():
-    if "yes" != raw_input("Enter yes if you accept the terms of service at http://get-idempotence.com/tos.html").lower():
-        print "Sorry, for have to accept the TOS to use this application"
-        sys.exit(0)
-    requests.post("http://idempotence.heroku.com/register", data = {'email': email})
-    print "Great, your API key is on its way."
+    if "yes" != raw_input(
+            ("Enter yes if you accept the terms of service at http://get-idempotence.com/tos.html\n"
+             "and agree to time from time receive email mails from announcing product, serice\n"
+             "and tos changes.\n")).lower():
+        print "Sorry, you have to accept the TOS to use this application"
+        return 0
+    print FLAGS.email
+    resp = requests.post(FLAGS.api + "register", data=dict(email=FLAGS.register))
+    if resp.status_code < 400:
+        print "Great, your API key is on its way."
+        return 0
+    else:
+        print "Opps, there was an error: ", resp.status_code
+        print resp.text
+        return 1
+        
 
 def invalidate():
     requests.post("http://idempotence.heroku.com/invalidate", data = {'email': email, 'key': key})

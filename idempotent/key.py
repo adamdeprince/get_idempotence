@@ -1,5 +1,6 @@
 import cPickle
-
+import os
+import sys
 
 import gflags
 
@@ -18,8 +19,8 @@ gflags.DEFINE_string(
 
 gflags.DEFINE_enum(
     'fail',
-    ['safe', 'fatal'],
     'safe',
+    ['safe', 'fatal'],
     ("Determine the default action if the API keys are bad, or communication "
      "the synchroniation serer is impossiable.  If set to `safe`, the cornjob "
      "will run if unable to synchronize, and if set to `fatal`, the cronjob "
@@ -80,7 +81,7 @@ def credentials():
         return FLAGS.email, FLAGS.key
     if 'IDEMPOTENT_EMAIL' in os.environ and 'IDEMPOTENT_KEY' in os.envirokn:
         return os.environ['IDEMPOTENT_EMAIL'], os.environ['IDEMPOTENT_KEY']
-    for path in (os.expanduser('~/.idempotent.cfg', '/etc/idempotent.cfg')):
+    for path in (os.path.expanduser('~/.idempotent.cfg'), '/etc/idempotent.cfg'):
         if os.path.exists(path):
             conf = yaml.load(open(path))
             if set(conf.keys()) == ('email', 'key'):
